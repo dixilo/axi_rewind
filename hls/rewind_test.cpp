@@ -7,6 +7,7 @@ int main()
 {
 
     dds_in data_in;
+    dds_in data_pipe;
     hls::stream<double> data_out;
 
     double phase_rew[N_CH];
@@ -25,18 +26,21 @@ int main()
 
     for(int j = 0; j < N_CH; j++){
         dds_data tmpd;
-        x = 1;
+        x = j+1;
         y = 0;
         tmpd.data = y.concat(x);
         data_in.write(tmpd);
     }
 
-    rewind(data_in, data_out, phase_rew, offset_real, offset_imag, phi_0);
+    rewind(data_in, data_out, data_pipe, phase_rew, offset_real, offset_imag, phi_0);
 
     for(int j = 0; j < N_CH; j++){
         double result;
+        dds_data pipe;
         data_out.read(result);
+        data_pipe.read(pipe);
         cout << "result:" << result << endl;
+        cout << "result (pipe):" << pipe.data << endl;
     }
 
     cout << "Success: results match" << endl;

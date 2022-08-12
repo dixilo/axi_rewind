@@ -16,6 +16,7 @@ void rotation(const compd raw, compd& rew, double phase){
 
 void rewind(dds_in &data_in,
             hls::stream<double> &data_out,
+            dds_in &data_pipe,
             const double phase_rew[N_CH],
             const double offset_real[N_CH],
             const double offset_imag[N_CH],
@@ -24,6 +25,7 @@ void rewind(dds_in &data_in,
     // Stream in/out.
 	#pragma HLS INTERFACE axis port=data_in
 	#pragma HLS INTERFACE axis port=data_out
+    #pragma HLS INTERFACE axis port=data_pipe
     // Bram interface.
 	#pragma HLS INTERFACE bram port=phase_rew
 	#pragma HLS INTERFACE bram port=offset_real
@@ -32,10 +34,10 @@ void rewind(dds_in &data_in,
     // Ctrl interface suppression.
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-    dds_data data_tmp_dds;
 
 	for(int i = 0; i < N_CH; i++){
         #pragma HLS pipeline II=1 rewind
+	    dds_data data_tmp_dds;
 		data_in.read(data_tmp_dds);
 
 		// Data slicing.
@@ -69,5 +71,6 @@ void rewind(dds_in &data_in,
 
 		// atan2 and output.
 		data_out.write(hls::atan2(tmp_fin.imag(), tmp_fin.real()));
+		data_pipe.write(data_tmp_dds);
 	}
 }

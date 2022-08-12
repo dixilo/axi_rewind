@@ -16,6 +16,7 @@ typedef hls::stream<dds_data> dds_in;
 
 void rewind(dds_in &data_in,
             hls::stream<double> &data_out,
+            dds_in &data_pipe,
             const double phase_rew[N_CH],
             const double offset_real[N_CH],
             const double offset_imag[N_CH],

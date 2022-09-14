@@ -8,7 +8,7 @@ using namespace std::complex_literals;
 
 void rotation(const compd raw, compd& rew, double phase){
     double c,s;
-    hls::sincos(phase, &c, &s);
+    hls::sincos(phase, &s, &c);
     
     rew = compd(raw.real()*c - raw.imag()*s, raw.real()*s + raw.imag()*c);
 }
@@ -34,9 +34,9 @@ void rewind(dds_in &data_in,
     // Ctrl interface suppression.
 	#pragma HLS INTERFACE ap_ctrl_none port=return
 
-
+	
 	for(int i = 0; i < N_CH; i++){
-        #pragma HLS pipeline II=1 rewind
+		#pragma HLS pipeline II=1 rewind
 	    dds_data data_tmp_dds;
 		data_in.read(data_tmp_dds);
 

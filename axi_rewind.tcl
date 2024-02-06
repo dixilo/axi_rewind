@@ -47,7 +47,7 @@ connect_bd_intf_net [get_bd_intf_pins axi_bc_phi_0/BRAM_PORTA]       [get_bd_int
 # Clock and reset
 ## Device clock (expected to be 256 MHz)
 create_bd_net dev_clk
-create_bd_port -dir I -type clk -freq_hz 256000000 dev_clk
+create_bd_port -dir I -type clk dev_clk
 connect_bd_net -net [get_bd_nets dev_clk] [get_bd_ports dev_clk]
 connect_bd_net -net [get_bd_nets dev_clk] [get_bd_pins rewind/ap_clk]
 
@@ -77,19 +77,34 @@ connect_bd_net -net [get_bd_nets axi_aresetn] [get_bd_pins axi_bc_phi_0/s_axi_ar
 connect_bd_net -net [get_bd_nets axi_aresetn] [get_bd_ports axi_aresetn] 
 
 # AXI interfaces
-create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_phase_rew
-create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_offset_real
-create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_offset_imag
-create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_phi_0
+# create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_phase_rew
+# create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_offset_real
+# create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_offset_imag
+# create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:aximm_rtl:1.0 axi_phi_0
 
-connect_bd_intf_net [get_bd_intf_ports axi_phase_rew] [get_bd_intf_pins axi_bc_phase_rew/S_AXI]
-connect_bd_intf_net [get_bd_intf_ports axi_offset_real] [get_bd_intf_pins axi_bc_offset_real/S_AXI]
-connect_bd_intf_net [get_bd_intf_ports axi_offset_imag] [get_bd_intf_pins axi_bc_offset_imag/S_AXI]
-connect_bd_intf_net [get_bd_intf_ports axi_phi_0] [get_bd_intf_pins axi_bc_phi_0/S_AXI]
+# connect_bd_intf_net [get_bd_intf_ports axi_phase_rew] [get_bd_intf_pins axi_bc_phase_rew/S_AXI]
+# connect_bd_intf_net [get_bd_intf_ports axi_offset_real] [get_bd_intf_pins axi_bc_offset_real/S_AXI]
+# connect_bd_intf_net [get_bd_intf_ports axi_offset_imag] [get_bd_intf_pins axi_bc_offset_imag/S_AXI]
+# connect_bd_intf_net [get_bd_intf_ports axi_phi_0] [get_bd_intf_pins axi_bc_phi_0/S_AXI]
+
+make_bd_intf_pins_external [get_bd_intf_pins axi_bc_phase_rew/S_AXI]
+make_bd_intf_pins_external [get_bd_intf_pins axi_bc_offset_real/S_AXI]
+make_bd_intf_pins_external [get_bd_intf_pins axi_bc_offset_imag/S_AXI]
+make_bd_intf_pins_external [get_bd_intf_pins axi_bc_phi_0/S_AXI]
+
+set_property name axi_phase_rew [get_bd_intf_ports S_AXI_0]
+set_property name axi_offset_real [get_bd_intf_ports S_AXI_1]
+set_property name axi_offset_imag [get_bd_intf_ports S_AXI_2]
+set_property name axi_phi_0 [get_bd_intf_ports S_AXI_3]
+
+set_property CONFIG.ID_WIDTH 16 [get_bd_intf_ports axi_phase_rew]
+set_property CONFIG.ID_WIDTH 16 [get_bd_intf_ports axi_offset_real]
+set_property CONFIG.ID_WIDTH 16 [get_bd_intf_ports axi_offset_imag]
+set_property CONFIG.ID_WIDTH 16 [get_bd_intf_ports axi_phi_0]
 
 # AXIS interfaces
 create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:axis_rtl:1.0 axis_data_in
-set_property -dict [list CONFIG.FREQ_HZ {256000000} \
+set_property -dict [list \
                          CONFIG.HAS_TLAST {1} \
                          CONFIG.HAS_TKEEP {1} \
                          CONFIG.HAS_TSTRB {1} \
@@ -98,7 +113,7 @@ set_property -dict [list CONFIG.FREQ_HZ {256000000} \
 connect_bd_intf_net [get_bd_intf_ports axis_data_in] [get_bd_intf_pins rewind/data_in]
 
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 axis_phase_out
-set_property -dict [list CONFIG.FREQ_HZ {256000000} \
+set_property -dict [list \
                          CONFIG.HAS_TLAST {0} \
                          CONFIG.HAS_TKEEP {0} \
                          CONFIG.HAS_TSTRB {0} \
@@ -107,7 +122,7 @@ set_property -dict [list CONFIG.FREQ_HZ {256000000} \
 connect_bd_intf_net [get_bd_intf_ports axis_phase_out] [get_bd_intf_pins rewind/data_out]
 
 create_bd_intf_port -mode Master -vlnv xilinx.com:interface:axis_rtl:1.0 axis_data_out
-set_property -dict [list CONFIG.FREQ_HZ {256000000} \
+set_property -dict [list \
                          CONFIG.HAS_TLAST {1} \
                          CONFIG.HAS_TKEEP {1} \
                          CONFIG.HAS_TSTRB {1} \
@@ -134,5 +149,19 @@ ipx::create_xgui_files                                                $axi_rewin
 ipx::update_checksums                                                 $axi_rewind
 ipx::check_integrity                                                  $axi_rewind
 ipx::save_core                                                        $axi_rewind
-#set_property  ip_repo_paths  {"./ip_repo" "./hls/proj_rewind/solution1/impl/ip"} [current_project]
-#update_ip_catalog
+
+
+# Interface
+ipx::infer_bus_interface dev_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_core]
+ipx::infer_bus_interface axi_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_core]
+
+ipx::associate_bus_interfaces -busif axis_data_in -clock dev_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif axis_data_out -clock dev_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif axis_phase_out -clock dev_clk [ipx::current_core]
+
+ipx::associate_bus_interfaces -busif axi_phase_rew   -clock axi_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif axi_offset_real -clock axi_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif axi_offset_imag -clock axi_clk [ipx::current_core]
+ipx::associate_bus_interfaces -busif axi_phi_0       -clock axi_clk [ipx::current_core]
+
+ipx::save_core [ipx::current_core]

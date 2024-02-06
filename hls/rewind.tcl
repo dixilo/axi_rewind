@@ -18,6 +18,7 @@ open_solution -reset solution1 -flow_target vivado
 set_part {xczu28dr-ffvg1517-2-e}
 create_clock -period 2
 set_clock_uncertainty 0.2
+config_rtl -reset all
 
 csynth_design
 export_design -format ip_catalog
